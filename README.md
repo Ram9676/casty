@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/design/latest/app_logo.svg" width="300" height="100" />    
+  <img src="./app_logo.png" width="300" height="100" />    
   <p><b>Casty</b> is a <b>multilingual</b> and <b>multiplatform</b> application for streaming music.</p>
   <p>It began as an <b>extension</b> of <b>ViMusic</b>, then acquired its own identity.</p>
 <p><b>It allows the user to customize it at will.</b></p>
