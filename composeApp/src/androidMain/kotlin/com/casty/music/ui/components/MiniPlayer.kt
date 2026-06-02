@@ -1,20 +1,11 @@
 package com.casty.music.ui.components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Icon
@@ -29,14 +20,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.casty.music.data.cleanTitle
-import com.casty.music.ui.components.HapticType
-import com.casty.music.ui.components.castyClickable
 import com.casty.music.ui.theme.CastyTheme
 import com.casty.music.viewmodel.CastyPlayerViewModel
 import com.casty.music.viewmodel.PlayerEvent
@@ -56,12 +47,33 @@ fun MiniPlayer(
 
     val haptics = rememberCastyHaptics()
     var offsetX by remember { mutableStateOf(0f) }
+    
+    // Magical pulsing background animation
+    val infiniteTransition = rememberInfiniteTransition(label = "miniPlayerPulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseAlpha"
+    )
+    
+    // Progress bar animation
+    val animatedProgress by animateFloatAsState(
+        targetValue = if (uiState.durationMs > 0) {
+            uiState.progressMs.toFloat() / uiState.durationMs.toFloat()
+        } else 0f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "progress"
+    )
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .height(64.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .height(72.dp)
             .offset { IntOffset(offsetX.roundToInt(), 0) }
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -81,43 +93,102 @@ fun MiniPlayer(
                     }
                 )
             }
-            .clip(CastyTheme.shapes.premiumCard)  // Advanced premium crop for best edge/interaction feel
-            .background(CastyTheme.colors.elevation2)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        CastyTheme.colors.elevation2.copy(alpha = 0.9f),
+                        CastyTheme.colors.elevation2.copy(alpha = 0.7f)
+                    )
+                )
+            )
             .castyClickable(
-                onClick = { onExpand() },
+                onClick = { 
+                    haptics.confirm()
+                    onExpand() 
+                },
                 hapticType = HapticType.Tick
             )
     ) {
+        // Animated background glow when playing
+        if (uiState.isPlaying) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                CastyTheme.colors.accentPink.copy(alpha = pulseAlpha * 0.3f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+        }
+        
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Album Art
-            CastyArtwork(
-                model = currentSong.thumbnailUrl,
-                contentDescription = "Album Art",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(48.dp),
-                shape = RoundedCornerShape(4.dp)
-            )
+            // Animated Album Art with rotation when playing
+            Box {
+                CastyArtwork(
+                    model = currentSong.thumbnailUrl,
+                    contentDescription = "Album Art",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                
+                // Playing indicator ring
+                if (uiState.isPlaying) {
+                    val rotation by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 360f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 3000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart
+                        ),
+                        label = "rotation"
+                    )
+                    
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                Brush.sweepGradient(
+                                    colors = listOf(
+                                        CastyTheme.colors.accentPink,
+                                        CastyTheme.colors.accentBlue,
+                                        CastyTheme.colors.accentPink
+                                    )
+                                )
+                            )
+                            .rotate(rotation)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-            // Title & Artist
+            // Title & Artist with marquee effect
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
             ) {
-                // Subtle Casty branding in the mini player for consistent identity
                 Text(
                     text = "Casty • ${currentSong.cleanTitle()}",
                     style = CastyTheme.typography.bodyLarge.copy(
                         color = CastyTheme.colors.textPrimary,
-                        fontSize = 14.sp
+                        fontSize = 15.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                     ),
                     maxLines = 1
                 )
@@ -129,16 +200,18 @@ fun MiniPlayer(
                         } else {
                             CastyTheme.colors.accentPink
                         },
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     ),
                     maxLines = 1
                 )
             }
 
-            // Like Heart Button
+            // Like Heart Button with scale animation
+            var isLikedAnimated by remember { mutableStateOf(uiState.isLiked) }
             IconButton(
                 onClick = {
                     haptics.confirm()
+                    isLikedAnimated = !isLikedAnimated
                     viewModel.onEvent(PlayerEvent.ToggleLike)
                 }
             ) {
@@ -148,11 +221,11 @@ fun MiniPlayer(
                     ),
                     contentDescription = "Like",
                     tint = if (uiState.isLiked) CastyTheme.colors.accentPink else CastyTheme.colors.textSecondary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(26.dp)
                 )
             }
 
-            // Play / Pause Button
+            // Play / Pause Button with morphing animation
             IconButton(
                 onClick = {
                     haptics.confirm()
@@ -165,24 +238,34 @@ fun MiniPlayer(
                     ),
                     contentDescription = "Play/Pause",
                     tint = CastyTheme.colors.textPrimary,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }
 
-        // Mini progress bar at the bottom of the dock
-        val progress = if (uiState.durationMs > 0) {
-            uiState.progressMs.toFloat() / uiState.durationMs.toFloat()
-        } else {
-            0f
-        }
-        
+        // Animated progress bar at the bottom with gradient
         Box(
             modifier = Modifier
-                .fillMaxWidth(progress)
-                .height(2.dp)
-                .background(CastyTheme.colors.accentPink)
-                .align(Alignment.BottomStart)
-        )
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(3.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(CastyTheme.colors.elevation1)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(animatedProgress)
+                    .height(3.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                CastyTheme.colors.accentBlue,
+                                CastyTheme.colors.accentPink,
+                                CastyTheme.colors.accentPurple
+                            )
+                        )
+                    )
+            )
+        }
     }
 }

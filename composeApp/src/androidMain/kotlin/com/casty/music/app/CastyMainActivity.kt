@@ -128,6 +128,10 @@ class CastyMainActivity : ComponentActivity() {
         // Nuclear fallback - if we reach here without crashing, dump any previous crash report
         dumpPreviousCrashToLogcat()
 
+        // CRITICAL FIX: Initialize player service connection immediately on app start
+        Timber.d("CastyMainActivity: Initializing player service connection...")
+        playerConnection.connect(startPlaybackService = true)
+
         try {
             setContent {
                 // Safe collection with default

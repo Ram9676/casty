@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="magical_primary">#FF6B35F7</color>
+    <color name="magical_secondary">#FFF72585</color>
+    <color name="magical_accent">#FF4CC9F0</color>
+    <color name="magical_background">#FF0A0E21</color>
+    <color name="magical_surface">#FF1A1F3C</color>
+    <color name="magical_glow">#406B35F7</color>
+    <color name="neon_blue">#FF00F0FF</color>
+    <color name="neon_purple">#FFBD00FF</color>
+    <color name="neon_pink">#FFFF0080</color>
+    
+    <dimen name="magical_elevation">16dp</dimen>
+    <dimen name="magical_corner_radius">24dp</dimen>
+    <dimen name="magical_padding">20dp</dimen>
+    
+    <string name="app_name">Casty - Magical Music</string>
+</resources>
