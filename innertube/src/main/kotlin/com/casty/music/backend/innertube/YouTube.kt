@@ -307,6 +307,7 @@ object YouTube {
         filter: SearchFilter,
     ): Result<SearchResult> =
         runCatching {
+            Timber.d("Searching for '$query' with filter ${filter.value}")
             val response = innerTube.search(WEB_REMIX, query, filter.value).body<SearchResponse>()
             val shelves =
                 response.contents
@@ -319,6 +320,7 @@ object YouTube {
                     ?.contents
                     ?.mapNotNull { it.musicShelfRenderer }
                     .orEmpty()
+            Timber.d("Search returned ${shelves.size} shelves")
             SearchResult(
                 items =
                     shelves
@@ -331,6 +333,8 @@ object YouTube {
                         ?.continuations
                         ?.getContinuation(),
             )
+        }.onFailure { throwable ->
+            Timber.e(throwable, "Search failed for query: $query")
         }
 
     suspend fun searchContinuation(continuation: String): Result<SearchResult> =

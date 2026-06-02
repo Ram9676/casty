@@ -120,6 +120,11 @@ class PlayerServiceConnection @Inject constructor(
     }
 
     fun connect(startPlaybackService: Boolean = false) {
+        if (isBound && _binder.value != null) {
+            Timber.d("PlayerServiceConnection already bound and ready")
+            return
+        }
+        
         val intent = Intent(appContext, MusicService::class.java)
         if (startPlaybackService) {
             runCatching { appContext.startService(intent) }
@@ -130,6 +135,7 @@ class PlayerServiceConnection @Inject constructor(
         }
         if (isBound) return
 
+        Timber.d("Binding to PlayerServiceConnection...")
         runCatching {
             appContext.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         }.onSuccess { bound ->
@@ -137,6 +143,8 @@ class PlayerServiceConnection @Inject constructor(
             if (!bound) {
                 Timber.e("Casty playback service bind returned false")
                 _playbackError.value = "Playback service is not available."
+            } else {
+                Timber.d("PlayerServiceConnection bind successful")
             }
         }.onFailure {
             isBound = false
@@ -296,15 +304,25 @@ class PlayerServiceConnection @Inject constructor(
 
     private fun withConnectionWhenReady(action: PlayerConnection.() -> Unit) {
         coroutineScope.launch {
+            Timber.d("withConnectionWhenReady called, current binder: ${_binder.value != null}")
             connect(startPlaybackService = true)
-            repeat(120) {
-                _binder.value?.let { connection ->
+            var attempts = 0
+            while (attempts < 120) {
+                val connection = _binder.value
+                if (connection != null) {
+                    Timber.d("Player connection ready, executing action")
                     connection.action()
                     snapshotPlayer(connection.player)
                     return@launch
                 }
+                attempts++
+                if (attempts % 20 == 0) {
+                    Timber.w("Waiting for player connection... attempt $attempts")
+                }
                 delay(50)
             }
+            Timber.e("Failed to get player connection after 120 attempts")
+            _playbackError.value = "Player service did not become ready. Please try again."
         }
     }
 
