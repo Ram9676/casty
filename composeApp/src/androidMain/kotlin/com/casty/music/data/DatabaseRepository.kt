@@ -680,7 +680,9 @@ private fun DbSongEntity.toSong(): Song = Song(
     id = id,
     title = title,
     artistsText = artistsText,
-    durationText = durationText,
+    durationText = durationText ?: durationMs
+        .takeIf { it > 0L }
+        ?.let { durationSecondsToText((it / 1000L).toInt()) },
     thumbnailUrl = thumbnailUrl,
     likedAt = likedAt
 )
@@ -689,23 +691,51 @@ private fun Song.toEntity(): DbSongEntity = DbSongEntity(
     id = id,
     title = title,
     artistsText = artistsText,
+    durationMs = durationText?.let(::durationTextToMillis)?.takeIf { it > 0L } ?: 0L,
     durationText = durationText,
     thumbnailUrl = thumbnailUrl,
     likedAt = likedAt,
     inLibrary = likedAt != null,
+    librarySyncedAt = if (likedAt != null) LocalDateTime.now() else null,
 )
 
-private fun DbSongEntity.mergeMetadata(incoming: DbSongEntity): DbSongEntity = copy(
-    title = incoming.title.ifBlank { title },
-    artistsText = incoming.artistsText ?: artistsText,
-    durationText = incoming.durationText ?: durationText,
-    thumbnailUrl = incoming.thumbnailUrl ?: thumbnailUrl,
-    likedAt = incoming.likedAt ?: likedAt,
-    albumId = incoming.albumId ?: albumId,
-    albumTitle = incoming.albumTitle ?: albumTitle,
-    year = incoming.year ?: year,
-    explicit = incoming.explicit,
-)
+private fun DbSongEntity.mergeMetadata(incoming: DbSongEntity): DbSongEntity {
+    val incomingAudioQuality = incoming.audioQuality.takeUnless { it == "AUTO" } ?: audioQuality
+    val incomingDurationMs = incoming.durationMs.takeIf { it > 0L } ?: durationMs
+
+    return copy(
+        // Fresh metadata from YouTube/backend.
+        title = incoming.title.ifBlank { title },
+        artistsText = incoming.artistsText ?: artistsText,
+        albumTitle = incoming.albumTitle ?: albumTitle,
+        albumId = incoming.albumId ?: albumId,
+        durationMs = incomingDurationMs,
+        durationText = incoming.durationText ?: durationText,
+        thumbnailUrl = incoming.thumbnailUrl ?: thumbnailUrl,
+        highResThumbnailUrl = incoming.highResThumbnailUrl ?: highResThumbnailUrl,
+        audioQuality = incomingAudioQuality,
+        availableFormats = incoming.availableFormats.takeIf { it.isNotEmpty() } ?: availableFormats,
+        currentFormat = incoming.currentFormat ?: currentFormat,
+        genre = incoming.genre ?: genre,
+        year = incoming.year ?: year,
+        explicit = explicit || incoming.explicit,
+        isLive = isLive || incoming.isLive,
+        isPremiere = isPremiere || incoming.isPremiere,
+        language = incoming.language ?: language,
+        similarityHash = incoming.similarityHash ?: similarityHash,
+        moodTags = incoming.moodTags.takeIf { it.isNotEmpty() } ?: moodTags,
+
+        // User/library state must survive every metadata refresh.
+        likedAt = incoming.likedAt ?: likedAt,
+        inLibrary = inLibrary || incoming.inLibrary || incoming.likedAt != null,
+        librarySyncedAt = librarySyncedAt ?: incoming.librarySyncedAt,
+        inWatchLater = inWatchLater || incoming.inWatchLater,
+        watchLaterAddedAt = watchLaterAddedAt ?: incoming.watchLaterAddedAt,
+        isHidden = isHidden || incoming.isHidden,
+        updatedAt = LocalDateTime.now(),
+        version = version + 1,
+    )
+}
 
 private fun PlaylistEntity.toPreview(): PlaylistPreview = PlaylistPreview(
     playlist = Playlist(

@@ -1,6 +1,8 @@
 package com.casty.music.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,10 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -202,7 +202,7 @@ private fun QueueItem(
         // Now playing indicator or position number
         if (isPlaying) {
             Icon(
-                imageVector = Icons.Default.MusicNote,
+                imageVector = Icons.Default.PlayArrow,
                 contentDescription = "Playing",
                 tint = CastyTheme.colors.accentPink,
                 modifier = Modifier.size(18.dp)

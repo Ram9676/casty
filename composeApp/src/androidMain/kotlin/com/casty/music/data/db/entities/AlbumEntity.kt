@@ -2,7 +2,6 @@ package com.casty.music.data.db.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Fts4
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -24,8 +23,8 @@ import java.time.LocalDateTime
     tableName = "albums",
     indices = [
         // Performance indices
-        Index(value = ["title"], order = Index.Order.ASC),
-        Index(value = ["authorsText"], order = Index.Order.ASC),
+        Index(value = ["title"], orders = [Index.Order.ASC]),
+        Index(value = ["authorsText"], orders = [Index.Order.ASC]),
         Index(value = ["year"]),
         Index(value = ["isFavorite"]),
         Index(value = ["lastPlayedAt"]),
@@ -34,12 +33,11 @@ import java.time.LocalDateTime
         Index(value = ["isDownloaded"]),
         Index(value = ["downloadedAt"]),
         // Composite indices for advanced queries
-        Index(value = ["isFavorite", "lastPlayedAt"], order = [Index.Order.DESC, Index.Order.DESC]),
-        Index(value = ["year", "title"], order = [Index.Order.DESC, Index.Order.ASC]),
-        Index(value = ["isDownloaded", "downloadedAt"], order = [Index.Order.DESC, Index.Order.DESC]),
+        Index(value = ["isFavorite", "lastPlayedAt"], orders = [Index.Order.DESC, Index.Order.DESC]),
+        Index(value = ["year", "title"], orders = [Index.Order.DESC, Index.Order.ASC]),
+        Index(value = ["isDownloaded", "downloadedAt"], orders = [Index.Order.DESC, Index.Order.DESC]),
     ]
 )
-@Fts4(contentEntity = AlbumEntity::class)
 data class AlbumEntity(
     @PrimaryKey
     val id: String,

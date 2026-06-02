@@ -143,8 +143,9 @@ interface AlbumDao {
     ): Flow<List<AlbumEntity>>
     
     @Query("""
-        SELECT DISTINCT genre FROM albums 
+        SELECT genre FROM albums
         WHERE genre IS NOT NULL 
+        GROUP BY genre
         ORDER BY COUNT(*) DESC
     """)
     fun observeGenreDistribution(): Flow<List<String>>
@@ -167,10 +168,19 @@ interface AlbumDao {
     suspend fun searchWithRelevance(query: String, limit: Int = 20): List<AlbumEntity>
     
     @Query("""
-        SELECT * FROM albums 
-        WHERE title MATCH :query 
-           OR authorsText MATCH :query
-        ORDER BY rank
+        SELECT * FROM albums
+        WHERE title LIKE '%' || :query || '%'
+           OR authorsText LIKE '%' || :query || '%'
+           OR description LIKE '%' || :query || '%'
+           OR genre LIKE '%' || :query || '%'
+        ORDER BY
+            CASE
+                WHEN title LIKE :query || '%' THEN 0
+                WHEN authorsText LIKE :query || '%' THEN 1
+                ELSE 2
+            END,
+            playCount DESC,
+            title ASC
         LIMIT :limit
     """)
     suspend fun fullTextSearch(query: String, limit: Int = 20): List<AlbumEntity>

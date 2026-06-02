@@ -157,9 +157,7 @@ fun CastyAdvancedSearchBar(
                         ),
                         cursorBrush = SolidColor(CastyTheme.colors.accentPink),
                         keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Search,
-                            autoCorrectEnabled = true,
-                            singleLine = true
+                            imeAction = ImeAction.Search
                         ),
                         keyboardActions = KeyboardActions(
                             onSearch = { 

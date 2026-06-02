@@ -1,6 +1,7 @@
 package com.casty.music.data.db.entities
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
@@ -47,7 +48,6 @@ import java.time.LocalDateTime
     ]
 )
 @TypeConverters(Converters::class)
-@Fts4(contentEntity = SongEntity::class)
 data class SongEntity(
     @PrimaryKey
     val id: String,                    // YouTube videoId (stable)
@@ -123,12 +123,25 @@ data class SongEntity(
     val version: Int = 1                // For optimistic locking
 ) {
     // Computed properties for convenience
+    @get:Ignore
     val isLiked: Boolean get() = likedAt != null
+
+    @get:Ignore
     val isInLibrary: Boolean get() = inLibrary || likedAt != null
+
+    @get:Ignore
     val durationSeconds: Long get() = durationMs / 1000
+
+    @get:Ignore
     val formattedDuration: String get() = formatDuration(durationMs)
+
+    @get:Ignore
     val needsSync: Boolean get() = cloudVersion > 0 && !cloudSynced
+
+    @get:Ignore
     val isRecentlyPlayed: Boolean get() = lastPlayedAt?.isAfter(LocalDateTime.now().minusDays(7)) ?: false
+
+    @get:Ignore
     val isTrending: Boolean get() = playCount > 10 && lastPlayedAt?.isAfter(LocalDateTime.now().minusDays(30)) ?: false
     
     private fun formatDuration(ms: Long): String {
@@ -143,21 +156,34 @@ data class SongEntity(
     }
     
     // Smart copy helpers
+    @Ignore
     fun withPlayback(positionMs: Long, completed: Boolean): SongEntity {
         val now = LocalDateTime.now()
-        val newPlayCount = if (positionMs > durationMs * 0.7) playCount + 1 else playCount
+        val completionRatio = if (durationMs > 0L) {
+            (positionMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
+        } else {
+            completionRate
+        }
+        val shouldCountPlay = completed || (durationMs > 0L && positionMs >= (durationMs * 0.7).toLong())
+        val newPlayCount = if (shouldCountPlay) playCount + 1 else playCount
         val newTotalTime = totalPlayTimeMs + positionMs
+        val samples = playCount.coerceAtLeast(0) + 1
         
         return copy(
             lastPlayedAt = now,
             playCount = newPlayCount,
             totalPlayTimeMs = newTotalTime,
-            completionRate = ((completionRate * playCount) + (positionMs.toFloat() / durationMs.toFloat())) / (newPlayCount + 1),
+            completionRate = if (durationMs > 0L) {
+                ((completionRate * playCount.coerceAtLeast(0)) + completionRatio) / samples
+            } else {
+                completionRate
+            },
             updatedAt = now,
             version = version + 1
         )
     }
     
+    @Ignore
     fun withSkip(positionMs: Long): SongEntity {
         val now = LocalDateTime.now()
         return copy(

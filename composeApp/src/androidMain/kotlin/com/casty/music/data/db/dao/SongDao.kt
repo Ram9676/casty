@@ -120,13 +120,13 @@ interface SongDao {
     fun observeUnplayedLibrarySongs(limit: Int = 10): Flow<List<SongEntity>>
 
     @Query("""
-        SELECT DISTINCT genre, COUNT(*) as count
+        SELECT genre, COUNT(*) AS count
         FROM songs 
         WHERE genre IS NOT NULL 
         GROUP BY genre 
         ORDER BY count DESC
     """)
-    suspend fun getGenreDistribution(): Map<String, Int>
+    suspend fun getGenreDistribution(): Map<@MapColumn(columnName = "genre") String, @MapColumn(columnName = "count") Int>
 
     @Query("""
         SELECT * FROM songs 

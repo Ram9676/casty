@@ -41,11 +41,7 @@ import com.casty.music.data.db.entities.SongEntity
         // Future: QueueStateEntity, TasteProfileSnapshot, ListeningStatsEntity
     ],
     version = 5,
-    exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 3, to = 4),
-        AutoMigration(from = 4, to = 5)
-    ]
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class CastyDatabase : RoomDatabase() {
@@ -59,15 +55,5 @@ abstract class CastyDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME = "casty_music.db"
         const val MIN_DB_VERSION = 3
-    }
-
-    /**
-     * Optional: Enable WAL mode for better concurrent read/write performance
-     * Call this in the database builder configuration
-     */
-    fun enableWriteAheadLogging() {
-        setQueryExecutor { command ->
-            kotlinx.coroutines.Dispatchers.IO.run { command.run() }
-        }
     }
 }

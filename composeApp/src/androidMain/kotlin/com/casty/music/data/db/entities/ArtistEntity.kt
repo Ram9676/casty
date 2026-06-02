@@ -2,7 +2,6 @@ package com.casty.music.data.db.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Fts4
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -25,7 +24,7 @@ import java.time.LocalDateTime
     tableName = "artists",
     indices = [
         // Performance indices
-        Index(value = ["name"], order = Index.Order.ASC),
+        Index(value = ["name"], orders = [Index.Order.ASC]),
         Index(value = ["isFavorite"]),
         Index(value = ["isFollowed"]),
         Index(value = ["subscriberCount"]),
@@ -36,13 +35,12 @@ import java.time.LocalDateTime
         Index(value = ["isDownloaded"]),
         Index(value = ["downloadedAt"]),
         // Composite indices for advanced queries
-        Index(value = ["isFavorite", "monthlyListeners"], order = [Index.Order.DESC, Index.Order.DESC]),
-        Index(value = ["isFollowed", "name"], order = [Index.Order.DESC, Index.Order.ASC]),
-        Index(value = ["genre", "subscriberCount"], order = [Index.Order.ASC, Index.Order.DESC]),
-        Index(value = ["isDownloaded", "downloadedAt"], order = [Index.Order.DESC, Index.Order.DESC]),
+        Index(value = ["isFavorite", "monthlyListeners"], orders = [Index.Order.DESC, Index.Order.DESC]),
+        Index(value = ["isFollowed", "name"], orders = [Index.Order.DESC, Index.Order.ASC]),
+        Index(value = ["genre", "subscriberCount"], orders = [Index.Order.ASC, Index.Order.DESC]),
+        Index(value = ["isDownloaded", "downloadedAt"], orders = [Index.Order.DESC, Index.Order.DESC]),
     ]
 )
-@Fts4(contentEntity = ArtistEntity::class)
 data class ArtistEntity(
     @PrimaryKey
     val id: String,

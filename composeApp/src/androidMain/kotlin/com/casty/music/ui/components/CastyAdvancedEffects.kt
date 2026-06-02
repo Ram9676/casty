@@ -8,10 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.casty.music.ui.theme.CastyTheme
 import kotlinx.coroutines.delay
 import kotlin.math.*
+import kotlin.random.Random
 
 /**
  * God-tier Particle System for premium background effects.
@@ -34,14 +36,14 @@ fun CastyParticleSystem(
         repeat(particleCount) { i ->
             particles.add(
                 Particle(
-                    x = (0f..1000f).random(),
-                    y = (0f..1000f).random(),
+                    x = randomFloat(0f, 1000f),
+                    y = randomFloat(0f, 1000f),
                     vx = (baseSpeed * (0.5f + Random.nextFloat())).let { if (Random.nextBoolean()) it else -it },
                     vy = (baseSpeed * 0.5f * (0.5f + Random.nextFloat())).let { if (Random.nextBoolean()) it else -it },
-                    radius = (1.5f..4f).random(),
-                    alpha = (0.15f..0.4f).random(),
-                    hue = (320f..350f).random(), // Pink spectrum
-                    life = (0f..1f).random()
+                    radius = randomFloat(1.5f, 4f),
+                    alpha = randomFloat(0.15f, 0.4f),
+                    hue = randomFloat(320f, 350f), // Pink spectrum
+                    life = randomFloat(0f, 1f)
                 )
             )
         }
@@ -65,7 +67,7 @@ fun CastyParticleSystem(
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        Color.HSV(particle.hue, 0.8f, 1f).copy(alpha = particle.alpha * 0.3f),
+                        Color.hsv(particle.hue, 0.8f, 1f).copy(alpha = particle.alpha * 0.3f),
                         Color.Transparent
                     ),
                     center = Offset(x, y),
@@ -77,7 +79,7 @@ fun CastyParticleSystem(
             
             // Draw core particle
             drawCircle(
-                color = Color.HSV(particle.hue, 0.9f, 1f).copy(alpha = particle.alpha),
+                color = Color.hsv(particle.hue, 0.9f, 1f).copy(alpha = particle.alpha),
                 radius = particle.radius * scale,
                 center = Offset(x, y)
             )
@@ -125,10 +127,10 @@ data class Particle(
         // Life cycle
         life -= 0.0005f
         if (life <= 0f) {
-            x = (0f..1000f).random()
+            x = randomFloat(0f, 1000f)
             y = 0f
-            vx = (0.2f..0.5f).random().let { if (Random.nextBoolean()) it else -it }
-            vy = (0.1f..0.3f).random()
+            vx = randomFloat(0.2f, 0.5f).let { if (Random.nextBoolean()) it else -it }
+            vy = randomFloat(0.1f, 0.3f)
             life = 1f
         }
     }
@@ -267,7 +269,7 @@ fun CastyWaveformVisualizer(
         }
         
         // Draw filled waveform with gradient
-        val fillPath = Path(path)
+        val fillPath = Path().apply { addPath(path) }
         fillPath.lineTo(width, height)
         fillPath.lineTo(0f, height)
         fillPath.close()
@@ -323,7 +325,7 @@ private fun createGaussianKernel(sigma: Float, size: Int = 5): FloatArray {
     var sum = 0f
     for (i in kernel.indices) {
         val x = i - mean
-        kernel[i] = (1f / sqrt(2f * PI * variance)) * exp(-(x * x) / (2f * variance))
+        kernel[i] = (1f / sqrt(2f * PI.toFloat() * variance)) * exp(-(x * x) / (2f * variance))
         sum += kernel[i]
     }
     
@@ -333,4 +335,8 @@ private fun createGaussianKernel(sigma: Float, size: Int = 5): FloatArray {
     }
     
     return kernel
+}
+
+private fun randomFloat(from: Float, to: Float): Float {
+    return from + Random.nextFloat() * (to - from)
 }
