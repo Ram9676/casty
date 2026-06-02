@@ -1,54 +1,205 @@
 ```
-# Compiled and build artifacts
-*.class
-*.o
-*.obj
-*.out
+# Build artifacts
 build/
-dist/
-target/
+.gradle/
 
 # Dependencies
 node_modules/
-venv/
-.venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-.gradle/
+.libs/
 
-# Logs and temp files
+# IDE files
+.idea/
+.vscode/
+
+# Logs
 *.log
-*.tmp
-*.swp
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-
-# System files
-.DS_Store
-Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
 .coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/modules/
+*.tmproj
+# Distribution / packaging
+.Python
+_build/
+buck-out/
+build/
+dist/
+develop-eggs/
+.installed.cfg
+.lib/
+.libs/
+.eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Compressed files
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+# JetBrains specific template is maintained in a separate JetBrains.gitignore that can be found at: https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+# and can be added to the global gitignore or merged into this file.  For a more nuclear option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Android
+*.apk
+*.aar
+*.so
+captures/
+.externalNativeBuild
+.cxx/
+.gradle/
+build/
+output.json
+local.properties
+
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+*.kotlin_metadata
+*.class
+*.jar
+*.war
+*.ear
 *.zip
-*.gz
 *.tar
-*.tgz
-*.bz2
-*.xz
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 *.7z
 *.rar
+*.gz
+*.bz2
+*.xz
 *.zst
 *.lz4
 *.lzh
@@ -59,4 +210,24 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
+
+# Compose Multiplatform
+composeApp/build/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 ```

@@ -23,7 +23,9 @@ class CastyColors(
     accentPink: Color,
     pinkHover: Color,
     pinkPressed: Color,
-    verifiedBlue: Color
+    verifiedBlue: Color,
+    accentBlue: Color,
+    accentPurple: Color
 ) {
     var systemCanvas by mutableStateOf(systemCanvas)
         private set
@@ -49,6 +51,10 @@ class CastyColors(
         private set
     var verifiedBlue by mutableStateOf(verifiedBlue)
         private set
+    var accentBlue by mutableStateOf(accentBlue)
+        private set
+    var accentPurple by mutableStateOf(accentPurple)
+        private set
 
     fun copy(
         systemCanvas: Color = this.systemCanvas,
@@ -62,11 +68,13 @@ class CastyColors(
         accentPink: Color = this.accentPink,
         pinkHover: Color = this.pinkHover,
         pinkPressed: Color = this.pinkPressed,
-        verifiedBlue: Color = this.verifiedBlue
+        verifiedBlue: Color = this.verifiedBlue,
+        accentBlue: Color = this.accentBlue,
+        accentPurple: Color = this.accentPurple
     ) = CastyColors(
         systemCanvas, elevation1, elevation2, elevation3, elevation4,
         borderInactive, textPrimary, textSecondary, accentPink,
-        pinkHover, pinkPressed, verifiedBlue
+        pinkHover, pinkPressed, verifiedBlue, accentBlue, accentPurple
     )
 
     fun updateColorsFrom(other: CastyColors) {
@@ -82,6 +90,8 @@ class CastyColors(
         pinkHover = other.pinkHover
         pinkPressed = other.pinkPressed
         verifiedBlue = other.verifiedBlue
+        accentBlue = other.accentBlue
+        accentPurple = other.accentPurple
     }
 }
 
@@ -97,7 +107,9 @@ val DarkColorPalette = CastyColors(
     accentPink = Color(0xFFFF2D92),        // Casty Premium Pink (bold, vibrant, future branding)
     pinkHover = Color(0xFFFF5BA8),
     pinkPressed = Color(0xFFE91E63),
-    verifiedBlue = Color(0xFF2E77D0)
+    verifiedBlue = Color(0xFF2E77D0),
+    accentBlue = Color(0xFF00B4FF),        // Vibrant cyan-blue for gradients
+    accentPurple = Color(0xFF8B3DF7)       // Deep purple for tri-color effects
 )
 
 

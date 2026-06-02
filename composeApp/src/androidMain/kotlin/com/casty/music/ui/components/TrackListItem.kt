@@ -198,7 +198,7 @@ fun TrackListItem(
                 }
             ) {
                 Icon(
-                    painter = painterResource(id = com.casty.music.R.drawable.more),
+                    painter = painterResource(id = com.casty.music.R.drawable.ellipsis_vertical),
                     contentDescription = "More options",
                     tint = if (isPlaying) 
                         CastyTheme.colors.accentPink 
