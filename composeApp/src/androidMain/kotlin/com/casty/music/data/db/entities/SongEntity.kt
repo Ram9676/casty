@@ -40,10 +40,14 @@ import java.time.LocalDateTime
         Index(value = ["inLibrary", "librarySyncedAt"]),
         Index(value = ["isDownloaded", "downloadedAt"]),
         Index(value = ["playCount", "lastPlayedAt"]),
-        Index(value = ["artistsText", "title"])
+        Index(value = ["artistsText", "title"]),
+        Index(value = ["inLibrary", "likedAt"]),
+        Index(value = ["isDownloaded", "offlineExpiry"]),
+        Index(value = ["energyLevel", "moodTags"])
     ]
 )
 @TypeConverters(Converters::class)
+@Fts4(contentEntity = SongEntity::class)
 data class SongEntity(
     @PrimaryKey
     val id: String,                    // YouTube videoId (stable)
