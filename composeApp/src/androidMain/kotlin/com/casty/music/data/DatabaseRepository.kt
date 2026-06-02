@@ -15,6 +15,8 @@ import com.casty.music.backend.innertube.models.SongItem
 import com.casty.music.backend.innertube.models.YTItem
 import com.casty.music.backend.utils.dataStore
 import com.casty.music.data.db.CastyDatabase
+import com.casty.music.data.db.entities.AlbumEntity
+import com.casty.music.data.db.entities.ArtistEntity
 import com.casty.music.data.db.entities.PlaylistEntity
 import com.casty.music.data.db.entities.PlaylistSongCrossRef
 import com.casty.music.data.db.entities.RecentSearchEntity
@@ -96,16 +98,72 @@ class DatabaseRepository @Inject constructor(
             }
         }.recoverRoomRead("playlists", emptyList())
 
-    // Albums / Artists from remote are still mostly in-memory for now (future: persist them too)
+    // Albums / Artists - Now fully persisted in Room (v5+)
     fun getAlbums(
         sortBy: AlbumSortBy = AlbumSortBy.Title,
         sortOrder: SortOrder = SortOrder.Ascending,
-    ): Flow<List<Album>> = kotlinx.coroutines.flow.flowOf(emptyList()) // TODO: persist albums
+    ): Flow<List<Album>> =
+        when (sortBy) {
+            AlbumSortBy.Title -> {
+                val flow = if (sortOrder == SortOrder.Ascending) {
+                    database.albumDao().observeVisibleAlbums()
+                } else {
+                    // For descending, we need to sort in memory since Room doesn't support dynamic ORDER BY
+                    kotlinx.coroutines.flow.flow {
+                        emit(database.albumDao().observeVisibleAlbums().first().sortedByDescending { it.title })
+                    }
+                }
+                flow.map { entities -> entities.map { it.toAlbum() } }
+            }
+        }.recoverRoomRead("albums", emptyList())
 
     fun getArtists(
         sortBy: ArtistSortBy = ArtistSortBy.Name,
         sortOrder: SortOrder = SortOrder.Ascending,
-    ): Flow<List<Artist>> = kotlinx.coroutines.flow.flowOf(emptyList()) // TODO: persist artists
+    ): Flow<List<Artist>> =
+        when (sortBy) {
+            ArtistSortBy.Name -> {
+                val flow = if (sortOrder == SortOrder.Ascending) {
+                    database.artistDao().observeVisibleArtists()
+                } else {
+                    kotlinx.coroutines.flow.flow {
+                        emit(database.artistDao().observeVisibleArtists().first().sortedByDescending { it.name })
+                    }
+                }
+                flow.map { entities -> entities.map { it.toArtist() } }
+            }
+        }.recoverRoomRead("artists", emptyList())
+    
+    // Advanced album/artist queries for enhanced features
+    fun getFavoriteAlbums(): Flow<List<Album>> =
+        database.albumDao().observeFavoriteAlbums()
+            .map { entities -> entities.map { it.toAlbum() } }
+            .recoverRoomRead("favorite albums", emptyList())
+    
+    fun getRecentlyPlayedAlbums(limit: Int = 20): Flow<List<Album>> =
+        database.albumDao().observeRecentlyPlayed(limit)
+            .map { entities -> entities.map { it.toAlbum() } }
+            .recoverRoomRead("recent albums", emptyList())
+    
+    fun getTrendingAlbums(limit: Int = 20): Flow<List<Album>> =
+        database.albumDao().observeTrendingAlbums(limit)
+            .map { entities -> entities.map { it.toAlbum() } }
+            .recoverRoomRead("trending albums", emptyList())
+    
+    fun getFavoriteArtists(): Flow<List<Artist>> =
+        database.artistDao().observeFavoriteArtists()
+            .map { entities -> entities.map { it.toArtist() } }
+            .recoverRoomRead("favorite artists", emptyList())
+    
+    fun getFollowedArtists(): Flow<List<Artist>> =
+        database.artistDao().observeFollowedArtists()
+            .map { entities -> entities.map { it.toArtist() } }
+            .recoverRoomRead("followed artists", emptyList())
+    
+    fun getTopArtists(limit: Int = 20): Flow<List<Artist>> =
+        database.artistDao().observeTopArtists(limit)
+            .map { entities -> entities.map { it.toArtist() } }
+            .recoverRoomRead("top artists", emptyList())
 
     fun getSearchQueries(): Flow<List<SearchQuery>> =
         recentSearchDao.observeRecent(limit = 20).map { list ->
@@ -444,12 +502,21 @@ class DatabaseRepository @Inject constructor(
         songDao.upsert(merged.transform().copy(updatedAt = LocalDateTime.now()))
     }
 
-    // Dead legacy helpers (albums/artists not yet persisted in v1 Room schema)
-    @Suppress("UNUSED_PARAMETER")
-    private fun mergeAlbums(newAlbums: List<Album>) { /* no-op for now */ }
+    private fun mergeAlbums(newAlbums: List<Album>) {
+        if (newAlbums.isEmpty()) return
+        repositoryScope.launch {
+            val entities = newAlbums.map { AlbumEntity.fromAlbum(it) }
+            database.albumDao().upsertAll(entities)
+        }
+    }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun mergeArtists(newArtists: List<Artist>) { /* no-op for now */ }
+    private fun mergeArtists(newArtists: List<Artist>) {
+        if (newArtists.isEmpty()) return
+        repositoryScope.launch {
+            val entities = newArtists.map { ArtistEntity.fromArtist(it) }
+            database.artistDao().upsertAll(entities)
+        }
+    }
 
     private suspend fun fetchDiscoveryItems(): List<YTItem> =
         runCatching { YouTube.explore().getOrThrow() }
