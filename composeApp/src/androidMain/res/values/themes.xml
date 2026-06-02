@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Casty" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- Use safe solid color for launch to prevent early process death -->
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:enforceNavigationBarContrast" tools:ignore="NewApi">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Ultra-minimal launch theme. Used only for the initial window creation by the system.
+         This prevents the app from dying immediately before any Kotlin code (including crash handlers) can run.
+         The complex background with logo is known to cause silent exits on some devices. -->
+    <style name="Theme.Casty.Launch" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>
