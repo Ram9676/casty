@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/ic_launcher_background_dark" />
+    <item
+        android:drawable="@drawable/casty_logo"
+        android:gravity="center"
+        android:height="124dp"
+        android:width="124dp" />
+</layer-list>

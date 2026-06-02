@@ -1,0 +1,38 @@
+/captures
+.externalNativeBuild
+.cxx
+
+###      IDEA
+.idea
+.gradle
+
+###      BUILDS
+**build/
+build_*.txt
+compile.log
+crash_log.txt
+main_log.txt
+*.log
+*.bak
+
+###      BINS
+*/bin/
+**/bin/
+
+###      LOCAL AGENT / SESSION STATE
+.claw/
+
+###      ANDROID
+**APK keystore/
+.DS_Store
+
+###      PROPERTIES
+**local.properties
+**crowdin.properties
+**__crowdin.properties
+
+
+
+###     DEPENDENCIES
+/YT python/
+/.kotlin/

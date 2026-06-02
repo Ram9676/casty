@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/casty_launch_background"
+        android:shortcutShortLabel="@string/shortcut_search_short"
+        android:shortcutLongLabel="@string/shortcut_search_long">
+        <intent
+            android:action="com.casty.music.action.search"
+            android:targetPackage="com.casty.music"
+            android:targetClass="com.casty.music.app.CastyMainActivity" />
+    </shortcut>
+</shortcuts>
